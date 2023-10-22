@@ -1,22 +1,59 @@
-Sub CopySelectedSheetsToNewWorkbook()
-    Dim sh As Worksheet
-    Dim wkbTarget As Workbook
-    Dim i, arrNames
-    Dim cell As Range, xVRg As Range
-   Set xVRg = Application.InputBox("Please select the column ", "Excel", "", Type:=8)
-    Set wkbTarget = Workbooks.Add()
-     Set sh = ThisWorkbook.Sheets("Menus_and_forms")
-     sh.Copy After:=wkbTarget.Sheets(1)
-     
-    For Each cell In xVRg
-      Set sh = Nothing
-            On Error Resume Next
-            Set sh = ThisWorkbook.Sheets(cell.Value)
-            On Error GoTo 0
-            If Not sh Is Nothing Then
-                sh.Copy After:=wkbTarget.Sheets(2)
-            End If
-    Next cell
-        
-      wkbTarget.Sheets("Sheet1").Delete
+Sub Splitdatabycol()
+Dim lr As Long
+Dim ws As Worksheet
+Dim vcol, i As Integer
+Dim icol As Long
+Dim myarr As Variant
+Dim title As String
+Dim titlerow As Integer
+Dim xTRg As Range
+Dim xVRg As Range
+Dim xWSTRg As Worksheet
+On Error Resume Next
+Set xTRg = Application.InputBox("Please select the header rows:", "eCHIS", "", Type:=8)
+If TypeName(xTRg) = "Nothing" Then Exit Sub
+Set xVRg = Application.InputBox("Please select the column you want to split data based on:", "eCHIS", "", Type:=8)
+If TypeName(xVRg) = "Nothing" Then Exit Sub
+vcol = xVRg.Column
+Set ws = xTRg.Worksheet
+lr = ws.Cells(ws.Rows.Count, vcol).End(xlUp).Row
+title = xTRg.AddressLocal
+titlerow = xTRg.Cells(1).Row
+icol = ws.Columns.Count
+ws.Cells(1, icol) = "Unique"
+Application.DisplayAlerts = False
+If Not Evaluate("=ISREF('xTRgWs_Sheet!A1')") Then
+Sheets.Add(After:=Worksheets(Worksheets.Count)).Name = "xTRgWs_Sheet"
+Else
+Sheets("xTRgWs_Sheet").Delete
+Sheets.Add(After:=Worksheets(Worksheets.Count)).Name = "xTRgWs_Sheet"
+End If
+Set xWSTRg = Sheets("xTRgWs_Sheet")
+xTRg.Copy
+xWSTRg.Paste Destination:=xWSTRg.Range("A1")
+ws.Activate
+For i = (titlerow + xTRg.Rows.Count) To lr
+On Error Resume Next
+If ws.Cells(i, vcol) <> "" And Application.WorksheetFunction.Match(ws.Cells(i, vcol), ws.Columns(icol), 0) = 0 Then
+ws.Cells(ws.Rows.Count, icol).End(xlUp).Offset(1) = ws.Cells(i, vcol)
+End If
+Next
+myarr = Application.WorksheetFunction.Transpose(ws.Columns(icol).SpecialCells(xlCellTypeConstants))
+ws.Columns(icol).Clear
+For i = 2 To UBound(myarr)
+ws.Range(title).AutoFilter field:=vcol, Criteria1:=myarr(i) & ""
+If Not Evaluate("=ISREF('" & myarr(i) & "'!A1)") Then
+Sheets.Add(After:=Worksheets(Worksheets.Count)).Name = myarr(i) & ""
+Else
+Sheets(myarr(i) & "").Move After:=Worksheets(Worksheets.Count)
+End If
+xWSTRg.Range(title).Copy
+Sheets(myarr(i) & "").Paste Destination:=Sheets(myarr(i) & "").Range("A1")
+ws.Range("A" & (titlerow + xTRg.Rows.Count) & ":A" & lr).EntireRow.Copy Sheets(myarr(i) & "").Range("A" & (titlerow + xTRg.Rows.Count))
+Sheets(myarr(i) & "").Columns.AutoFit
+Next
+xWSTRg.Delete
+ws.AutoFilterMode = False
+ws.Activate
+Application.DisplayAlerts = True
 End Sub
