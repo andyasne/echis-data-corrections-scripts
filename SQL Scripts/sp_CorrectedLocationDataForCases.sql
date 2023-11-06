@@ -29,3 +29,14 @@ BEGIN
 END;
 $$
 LANGUAGE 'plpgsql';
+
+
+
+
+//TODO: do stored procedure for the following 
+SELECT c.caseid ,to_location_id as owner_id, c.case_type FROM 
+(select distinct  c.caseid , c.case_type ,c."indices.family"  from Client ) as c 
+inner join
+ ( select caseid from 
+getFamilyCorrections(to_location_id,from_location_id, village_name1_value, village_name2_value, village_name3_value)) as p ON c."indices.family" = p.caseid ;
+
