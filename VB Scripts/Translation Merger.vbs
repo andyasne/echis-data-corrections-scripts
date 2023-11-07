@@ -115,6 +115,7 @@ If Not sourceSheet Is Nothing Then
                     On Error GoTo 0
                     
                     If Not findRange Is Nothing Then
+                    If sourceSheet.Cells(findRange.Row, colIndexSource).Value <> targetSheet.Cells(i, colIndexSom).Value Then
                         ' Copy the "default_som" value from target to source
                         sourceSheet.Cells(findRange.Row, colIndexSource).Value = targetSheet.Cells(i, colIndexSom).Value
                         
@@ -137,6 +138,7 @@ If Not sourceSheet Is Nothing Then
                         reportWorksheet.Cells(reportRow, 3).Value = targetSheet.Cells(i, colIndexSom).Value
                         reportRow = reportRow + 1
                     End If
+                       End If
                 End If
             Next i
             
@@ -240,6 +242,7 @@ Next rowNum
 Next ws
 
 End Sub
+
 
 
 
