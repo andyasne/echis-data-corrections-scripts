@@ -228,10 +228,18 @@ For rowNum = 2 To ws.UsedRange.Rows.Count ' Assuming headers are in row 1
                         Debug.Print "Copying value to somHeader column: " & foundValue
                         ' Copy the 5th column value from the reportSheet to the current row's somHeader column
                         ws.Cells(rowNum, colIndexSom).Value = foundValue
-                        ws.Cells(rowNum, colIndexSom).Font.Color = RGB(0, 0, 255)
+                         
+ 
+If ws.Cells(rowNum, colIndexSom).Interior.Color <> RGB(255, 255, 0) Then
+ 
+ ws.Cells(rowNum, colIndexSom).Font.Color = RGB(0, 0, 255)
+ End If
+ 
+If ws.Tab.Color <> RGB(255, 255, 0) Then
+                       
                         ws.Tab.Color = RGB(0, 0, 255)
                         ' Set the font color to blue (or any color you prefer)
-                    
+                End If
                 End If
                     End If
             End If
@@ -241,6 +249,8 @@ Next rowNum
 Next ws
 
 End Sub
+
+
 
 
 
