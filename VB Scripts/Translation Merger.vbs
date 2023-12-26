@@ -205,8 +205,7 @@ For rowNum = 2 To ws.UsedRange.Rows.Count ' Assuming headers are in row 1
         Set somColumnTarget = ws.UsedRange.Rows(1).Find(somHeader, LookIn:=xlValues)
         If Not somColumnTarget Is Nothing Then
             colIndexSom = somColumnTarget.Column
-
-            If Not IsEmpty(ws.Cells(rowNum, colIndexSom).Value) Then
+ 
                 Debug.Print "Searching for default_eng value: " & defaultEngValue
                 ' Search for the default_eng value in the reportWorkbook's first sheet
                 Dim reportSheet As Worksheet
@@ -225,14 +224,14 @@ For rowNum = 2 To ws.UsedRange.Rows.Count ' Assuming headers are in row 1
                     Dim foundValue As Variant
                     foundValue = foundCell.Offset(0, 2).Value
 
-                    If Not IsEmpty(foundValue) & foundValue <> ws.Cells(rowNum, colIndexSom).Value Then
+                    If Not IsEmpty(foundValue) Then
                         Debug.Print "Copying value to somHeader column: " & foundValue
                         ' Copy the 5th column value from the reportSheet to the current row's somHeader column
                         ws.Cells(rowNum, colIndexSom).Value = foundValue
                         ws.Cells(rowNum, colIndexSom).Font.Color = RGB(0, 0, 255)
                         ws.Tab.Color = RGB(0, 0, 255)
                         ' Set the font color to blue (or any color you prefer)
-                    End If
+                    
                 End If
                     End If
             End If
