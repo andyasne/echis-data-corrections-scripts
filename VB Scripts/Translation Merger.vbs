@@ -212,7 +212,7 @@ For rowNum = 2 To ws.UsedRange.Rows.Count ' Assuming headers are in row 1
                 Set reportSheet = reportWorkbook.Sheets(1) ' Assuming report data is in the first sheet
                 Dim reportRange As Range
                 Set reportRange = reportSheet.UsedRange
-                If Not IsEmpty(defaultEngValue) And defaultEngValue <> "" Then
+                If Not IsEmpty(defaultEngValue) And defaultEngValue <> "" And (ws.Cells(rowNum, colIndexSom).Value = defaultEngValue Or ws.Cells(rowNum, colIndexSom).Value = "") Then
                 ' Find the default_eng value in the 3rd column
                 Dim foundCell As Range
                 On Error Resume Next
@@ -230,12 +230,12 @@ For rowNum = 2 To ws.UsedRange.Rows.Count ' Assuming headers are in row 1
                         ws.Cells(rowNum, colIndexSom).Value = foundValue
                          
  
-If ws.Cells(rowNum, colIndexSom).Interior.Color <> RGB(255, 255, 0) Then
- 
- ws.Cells(rowNum, colIndexSom).Font.Color = RGB(0, 0, 255)
- End If
- 
-If ws.Tab.Color <> RGB(255, 255, 0) Then
+                    If ws.Cells(rowNum, colIndexSom).Interior.Color <> RGB(255, 255, 0) Then
+                     
+                     ws.Cells(rowNum, colIndexSom).Font.Color = RGB(0, 0, 255)
+                     End If
+                     
+                    If ws.Tab.Color <> RGB(255, 255, 0) Then
                        
                         ws.Tab.Color = RGB(0, 0, 255)
                         ' Set the font color to blue (or any color you prefer)
@@ -249,6 +249,8 @@ Next rowNum
 Next ws
 
 End Sub
+
+
 
 
 
