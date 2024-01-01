@@ -1,5 +1,5 @@
-Dim sourceSheet As Worksheet
-Dim targetSheet As Worksheet
+Dim NOTtranslatedSheet As Worksheet
+Dim translatedSheet As Worksheet
 Dim lastRowSource As Long
 Dim lastRowTarget As Long
 Dim engColumnSource As Range
@@ -19,6 +19,7 @@ Dim translatedFilePath As String
 Dim somHeader As String
 Sub UpdateMissingLabelsFromTranslation()
 
+Dim beforeTranslation As String
 
 ' Fetch the folder path of the current Excel document
 Dim currentFolder As String
@@ -57,46 +58,47 @@ reportWorksheet.Cells(1, 3).Value = somHeader & " New Value"
 ' Initialize the report row
 reportRow = 2
 ' Loop through each sheet in Workbook B
-For Each targetSheet In workbookB.Sheets
-Debug.Print "Processing target sheet: " & targetSheet.Name
+For Each translatedSheet In workbookB.Sheets
+Debug.Print "Processing target sheet: " & translatedSheet.Name
 
 ' Check if the sheet exists in Workbook A
 On Error Resume Next
-Set sourceSheet = ThisWorkbook.Sheets(targetSheet.Name)
+Set NOTtranslatedSheet = ThisWorkbook.Sheets(translatedSheet.Name)
 On Error GoTo 0
 
-Debug.Print "Source sheet found: " & IIf(Not sourceSheet Is Nothing, "Yes", "No")
+Debug.Print "Source sheet found: " & IIf(Not NOTtranslatedSheet Is Nothing, "Yes", "No")
 
 ' Only proceed if the sheet names match
-If Not sourceSheet Is Nothing Then
+If Not NOTtranslatedSheet Is Nothing Then
     ' Find the "default_eng" column in the target sheet
     On Error Resume Next
-    Set engColumnTarget = targetSheet.UsedRange.Rows(1).Find("default_en", LookIn:=xlValues)
-    Set engColumnSource = sourceSheet.UsedRange.Rows(1).Find("default_en", LookIn:=xlValues)
+    Set engColumnTarget = translatedSheet.UsedRange.Rows(1).Find("default_en", LookIn:=xlValues)
+    Set engColumnSource = NOTtranslatedSheet.UsedRange.Rows(1).Find("default_en", LookIn:=xlValues)
     colIndexEng = engColumnSource.Column
-    targetSheet.Cells.EntireColumn.Hidden = False
-    Set somColumnTarget = targetSheet.UsedRange.Rows(1).Find(somHeader, LookIn:=xlValues)
+    translatedSheet.Cells.EntireColumn.Hidden = False
+    Set somColumnTarget = translatedSheet.UsedRange.Rows(1).Find(somHeader, LookIn:=xlValues)
     colIndexSom = somColumnTarget.Column
+    
     On Error GoTo 0
     
-    Debug.Print "Processing sheet: " & targetSheet.Name
+    Debug.Print "Processing sheet: " & translatedSheet.Name
     Debug.Print "Eng Column found: " & IIf(Not engColumnTarget Is Nothing, "Yes", "No")
     
     If Not engColumnTarget Is Nothing Then
         colIndexTarget = engColumnTarget.Column
-        lastRowTarget = targetSheet.Cells(targetSheet.Rows.Count, colIndexTarget).End(xlUp).Row
+        lastRowTarget = translatedSheet.Cells(translatedSheet.Rows.Count, colIndexTarget).End(xlUp).Row
         
         ' Find the "default_som" column in the source sheet
         On Error Resume Next
-        Set somColumnSource = sourceSheet.UsedRange.Rows(1).Find(somHeader, LookIn:=xlValues)
-        On Error GoTo 0
+        Set somColumnSource = NOTtranslatedSheet.UsedRange.Rows(1).Find(somHeader, LookIn:=xlValues)
+        On Error Resume Next
         
-        Debug.Print "Som Column found: " & IIf(Not somColumnSource Is Nothing, "Yes", "No")
+        Debug.Print "  Column found: " & IIf(Not somColumnSource Is Nothing, "Yes", "No")
         
         If Not somColumnSource Is Nothing Then
             colIndexSource = somColumnSource.Column
                    On Error Resume Next
-            lastRowSource = sourceSheet.Cells(sourceSheet.Rows.Count, colIndexSource).End(xlUp).Row
+            lastRowSource = NOTtranslatedSheet.Cells(NOTtranslatedSheet.Rows.Count, colIndexSource).End(xlUp).Row
              On Error GoTo 0
             ' Initialize a flag to track if any cell meets the condition
             Dim changeFlag As Boolean
@@ -105,27 +107,49 @@ If Not sourceSheet Is Nothing Then
             ' Loop through each row in the target sheet
             For i = 2 To lastRowTarget ' Starting from row 2 (assuming row 1 is headers)
               On Error Resume Next
-                engValue = targetSheet.Cells(i, colIndexTarget).Value
+                engValue = translatedSheet.Cells(i, colIndexTarget).Value
                   On Error GoTo 0
                 ' Search for the value in the source sheet and copy if found
                 If Not IsEmpty(engValue) Then
-                    Dim findRange As Range
-                      On Error Resume Next
-                    Set findRange = sourceSheet.Columns(colIndexEng).Find(engValue, LookIn:=xlValues, LookAt:=xlWhole)
-                    On Error GoTo 0
+               
+          
+                    Dim findRange As Boolean
+                    findRange = False
+                    Dim t As String
+                 
                     
-                    If Not findRange Is Nothing Then
-                    If sourceSheet.Cells(findRange.Row, colIndexSource).Value <> targetSheet.Cells(i, colIndexSom).Value Then
-                        ' Copy the "default_som" value from target to source
-                        sourceSheet.Cells(findRange.Row, colIndexSource).Value = targetSheet.Cells(i, colIndexSom).Value
+                    For j = 2 To lastRowSource
+                    
+                   t = NOTtranslatedSheet.Cells(j, colIndexEng).Value
+                   
+                   If t = engValue Then
+                   
+                   findRange = True
+                   
+                   
+                  ' Set findRange = NOTtranslatedSheet.Range(NOTtranslatedSheet.Cells(j, colIndexEng))
+                  Exit For
+                  
+                    On Error Resume Next
+                   
+                   End If
+                   
+                    Next j
+              
+                    
+                    If findRange = True Then
+                    If NOTtranslatedSheet.Cells(j, colIndexSource).Value <> translatedSheet.Cells(i, colIndexSom).Value Then
+                         
+                        beforeTranslation = NOTtranslatedSheet.Cells(j, colIndexSource).Value
+                        NOTtranslatedSheet.Cells(j, colIndexSource).Value = translatedSheet.Cells(i, colIndexSom).Value
                         
                         ' Change the font color to red for the modified cell
-                        sourceSheet.Cells(findRange.Row, colIndexSource).Font.Color = RGB(255, 0, 0)
-                        sourceSheet.Tab.Color = RGB(255, 0, 0) ' Yellow color
+                        NOTtranslatedSheet.Cells(j, colIndexSource).Font.Color = RGB(255, 0, 0)
+                        NOTtranslatedSheet.Tab.Color = RGB(255, 0, 0) ' Yellow color
                         
-                        If InStr(sourceSheet.Cells(findRange.Row, colIndexSource).Value, "<") > 0 Or InStr(sourceSheet.Cells(findRange.Row, colIndexSource).Value, ">") > 0 Then
+                        If InStr(NOTtranslatedSheet.Cells(j, colIndexSource).Value, "<") > 0 Or InStr(NOTtranslatedSheet.Cells(j, colIndexSource).Value, ">") > 0 Then
                             ' Change the background color of the cell to yellow
-                            sourceSheet.Cells(findRange.Row, colIndexSource).Interior.Color = RGB(255, 255, 0) ' Yellow color
+                            NOTtranslatedSheet.Cells(j, colIndexSource).Interior.Color = RGB(255, 255, 0) ' Yellow color
                             
                             ' Set the flag to indicate that a cell met the condition
                             changeFlag = True
@@ -134,8 +158,8 @@ If Not sourceSheet Is Nothing Then
                         ' Record the change in the report
               
                         reportWorksheet.Cells(reportRow, 1).Value = engValue
-                        reportWorksheet.Cells(reportRow, 2).Value = sourceSheet.Cells(findRange.Row, colIndexSource).Value
-                        reportWorksheet.Cells(reportRow, 3).Value = targetSheet.Cells(i, colIndexSom).Value
+                        reportWorksheet.Cells(reportRow, 2).Value = beforeTranslation
+                        reportWorksheet.Cells(reportRow, 3).Value = translatedSheet.Cells(i, colIndexSom).Value
                         reportRow = reportRow + 1
                     End If
                        End If
@@ -144,12 +168,12 @@ If Not sourceSheet Is Nothing Then
             
             ' Check if any cell met the condition and then change the tab color
             If changeFlag Then
-                sourceSheet.Tab.Color = RGB(255, 255, 0) ' Yellow color
+                NOTtranslatedSheet.Tab.Color = RGB(255, 255, 0) ' Yellow color
             End If
         End If
     End If
 End If
-Next targetSheet
+Next translatedSheet
 
 ' Save the report workbook in the same folder as the current workbook
 Dim reportFilePath As String
@@ -249,8 +273,6 @@ Next rowNum
 Next ws
 
 End Sub
-
-
 
 
 
