@@ -19,7 +19,7 @@ Sub BuildReport()
     End If
 
     'Prompt user to choose report type by number
-    reportType = InputBox("Choose report type: 1 for datasource, 2 for mobile report, 3 for web report")
+    reportType = InputBox("Choose report type: 1 for datasource, 2 for web report, 3 for mobile report")
 
     'Check the selected report type
     Select Case reportType
@@ -33,7 +33,7 @@ Sub BuildReport()
                     Debug.Print """create_index"": false," & """transform"": {}," & """comment"": """ & descRange.Cells(cell.Row - idRange.Row + 1, 1).Value & " """ & "}" & ","
                 End If
             Next cell
-        Case 2
+        Case 3
           serialNumber = -1
          For Each cell In idRange
         
@@ -50,7 +50,7 @@ Sub BuildReport()
 
                 End If
             Next cell
-        Case 3
+        Case 2
               For Each cell In idRange
             
                 currentID = Replace(Trim(cell.Value), ".", "_")
