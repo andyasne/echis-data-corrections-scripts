@@ -98,16 +98,21 @@ If Not NOTtranslatedSheet Is Nothing Then
         If Not somColumnSource Is Nothing Then
             colIndexSource = somColumnSource.Column
                    On Error Resume Next
-            lastRowSource = NOTtranslatedSheet.Cells(NOTtranslatedSheet.Rows.Count, colIndexSource).End(xlUp).Row
+            lastRowSource = NOTtranslatedSheet.Cells(NOTtranslatedSheet.Rows.Count, colIndexEng).End(xlUp).Row
              On Error GoTo 0
             ' Initialize a flag to track if any cell meets the condition
             Dim changeFlag As Boolean
             changeFlag = False
-            
+            Dim outputText, inputText
             ' Loop through each row in the target sheet
             For i = 2 To lastRowTarget ' Starting from row 2 (assuming row 1 is headers)
               On Error Resume Next
                 engValue = translatedSheet.Cells(i, colIndexTarget).Value
+                
+                engValue = Replace(engValue, vbCrLf, "")
+                engValue = Replace(engValue, " ", "")
+
+
                   On Error GoTo 0
                 ' Search for the value in the source sheet and copy if found
                 If Not IsEmpty(engValue) Then
@@ -121,6 +126,9 @@ If Not NOTtranslatedSheet Is Nothing Then
                     For j = 2 To lastRowSource
                     
                    t = NOTtranslatedSheet.Cells(j, colIndexEng).Value
+                   
+                   t = Replace(t, vbCrLf, "")
+                t = Replace(t, " ", "")
                    
                    If t = engValue Then
                    
@@ -273,6 +281,7 @@ Next rowNum
 Next ws
 
 End Sub
+
 
 
 
