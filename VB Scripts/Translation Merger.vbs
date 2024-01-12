@@ -170,10 +170,13 @@ If Not NOTtranslatedSheet Is Nothing Then
                     
                    
                        End If
+                       If (translatedSheet.Cells(i, colIndexSom).Value <> "") Then
                             reportWorksheet.Cells(reportRow, 1).Value = engValue
                         reportWorksheet.Cells(reportRow, 2).Value = beforeTranslation
                         reportWorksheet.Cells(reportRow, 3).Value = translatedSheet.Cells(i, colIndexSom).Value
                         reportRow = reportRow + 1
+                        End If
+                        
                 End If
             Next i
             
@@ -259,7 +262,7 @@ For rowNum = 2 To ws.UsedRange.Rows.Count ' Assuming headers are in row 1
                     Dim foundValue As Variant
                     foundValue = foundCell.Offset(0, 2).Value
 
-                    If Not IsEmpty(foundValue) Then
+                    If Not IsEmpty(foundValue) & foundValue <> foundCell.Value Then
                         Debug.Print "Copying value to somHeader column: " & foundValue
                         ' Copy the 5th column value from the reportSheet to the current row's somHeader column
                         ws.Cells(rowNum, colIndexSom).Value = foundValue
@@ -284,6 +287,8 @@ Next rowNum
 Next ws
 
 End Sub
+
+
 
 
 
