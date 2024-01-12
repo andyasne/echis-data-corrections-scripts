@@ -165,12 +165,15 @@ If Not NOTtranslatedSheet Is Nothing Then
                         
                         ' Record the change in the report
               
-                        reportWorksheet.Cells(reportRow, 1).Value = engValue
+                    
+                    End If
+                    
+                   
+                       End If
+                            reportWorksheet.Cells(reportRow, 1).Value = engValue
                         reportWorksheet.Cells(reportRow, 2).Value = beforeTranslation
                         reportWorksheet.Cells(reportRow, 3).Value = translatedSheet.Cells(i, colIndexSom).Value
                         reportRow = reportRow + 1
-                    End If
-                       End If
                 End If
             Next i
             
@@ -281,6 +284,7 @@ Next rowNum
 Next ws
 
 End Sub
+
 
 
 
