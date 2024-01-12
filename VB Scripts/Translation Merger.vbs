@@ -102,13 +102,15 @@ If Not NOTtranslatedSheet Is Nothing Then
              On Error GoTo 0
             ' Initialize a flag to track if any cell meets the condition
             Dim changeFlag As Boolean
+        Dim origionaleng As String
+        
             changeFlag = False
             Dim outputText, inputText
             ' Loop through each row in the target sheet
             For i = 2 To lastRowTarget ' Starting from row 2 (assuming row 1 is headers)
               On Error Resume Next
                 engValue = translatedSheet.Cells(i, colIndexTarget).Value
-                
+                origionaleng = engValue
                 engValue = Replace(engValue, vbCrLf, "")
                 engValue = Replace(engValue, " ", "")
 
@@ -171,7 +173,7 @@ If Not NOTtranslatedSheet Is Nothing Then
                    
                        End If
                        If (translatedSheet.Cells(i, colIndexSom).Value <> "") Then
-                            reportWorksheet.Cells(reportRow, 1).Value = engValue
+                            reportWorksheet.Cells(reportRow, 1).Value = origionaleng
                         reportWorksheet.Cells(reportRow, 2).Value = beforeTranslation
                         reportWorksheet.Cells(reportRow, 3).Value = translatedSheet.Cells(i, colIndexSom).Value
                         reportRow = reportRow + 1
@@ -262,7 +264,7 @@ For rowNum = 2 To ws.UsedRange.Rows.Count ' Assuming headers are in row 1
                     Dim foundValue As Variant
                     foundValue = foundCell.Offset(0, 2).Value
 
-                    If Not IsEmpty(foundValue) & foundValue <> foundCell.Value Then
+                    If Not IsEmpty(foundValue) Then
                         Debug.Print "Copying value to somHeader column: " & foundValue
                         ' Copy the 5th column value from the reportSheet to the current row's somHeader column
                         ws.Cells(rowNum, colIndexSom).Value = foundValue
@@ -287,6 +289,8 @@ Next rowNum
 Next ws
 
 End Sub
+
+
 
 
 
